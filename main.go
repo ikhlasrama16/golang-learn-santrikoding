@@ -3,8 +3,7 @@ package main
 import (
 	"example/hello/config"
 	"example/hello/database"
-
-	"github.com/gin-gonic/gin"
+	"example/hello/routes"
 )
 
 func main() {
@@ -14,14 +13,8 @@ func main() {
 	//inisialisasi database
 	database.InitDB()
 
-	router := gin.Default()
+	r := routes.SetupRouter()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello WOrld",
-		})
-	})
-
-	router.Run(":" + config.GetEnv("APP_PORT", "3000"))
+	r.Run(":" + config.GetEnv("APP_PORT", "3000"))
 
 }
