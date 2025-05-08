@@ -1,1 +1,15 @@
 .env
+
+# Binaries
+bin/*
+*.exe
+
+# Dependencies
+vendor/
+
+# IDE files
+.idea/
+*.iml
+
+# System files
+.DS_Store
