@@ -1,0 +1,57 @@
+package helpers
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
+)
+
+func TranslateErrorMessage(err error) map[string]string {
+
+	errorsMap := make(map[string]string)
+
+	if validationError, ok := err.(validator.ValidationErrors); ok {
+		for _, fieldError := range validationError {
+			field := fieldError.Field()
+			switch fieldError.Tag() {
+			case "required":
+				errorsMap[field] = fmt.Sprintf("%s is required", field) // Pesan error jika field kosong
+			case "email":
+				errorsMap[field] = "Invalid email format" // Pesan error jika format email tidak valid
+			case "unique":
+				errorsMap[field] = fmt.Sprintf("%s already exists", field) // Pesan error jika data sudah ada
+			case "min":
+				errorsMap[field] = fmt.Sprintf("%s must be at least %s characters", field, fieldError.Param()) // Pesan error jika nilai terlalu pendek
+			case "max":
+				errorsMap[field] = fmt.Sprintf("%s must be at most %s characters", field, fieldError.Param()) // Pesan error jika nilai terlalu panjang
+			case "numeric":
+				errorsMap[field] = fmt.Sprintf("%s must be a number", field) // Pesan error jika nilai bukan angka
+			default:
+				errorsMap[field] = "Invalid value" // Pesan error default untuk kesalahan validasi lainnya
+
+			}
+		}
+	}
+
+	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			if strings.Contains(err.Error(), "username") {
+				errorsMap["Username"] = "Username already exist"
+			}
+			if strings.Contains(err.Error(), "email") {
+				errorsMap["Email"] = "Email already exist"
+			}
+		} else if err == gorm.ErrRecordNotFound {
+			errorsMap["Error"] = "Record not found"
+		}
+	}
+
+	return errorsMap
+
+}
+
+func IsDuplicateEntryError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "Duplicate error")
+}
