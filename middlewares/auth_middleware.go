@@ -39,7 +39,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		// Jika token tidak valid atau terjadi error saat parsing
-		if err != nil || token.Valid {
+		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "invalid token",
 			})
